@@ -50,6 +50,31 @@ export class TenderlySimulator {
         },
       },
     );
-    return response.data.transaciton;
+    return response.data.transcation;
+  }
+
+  async batchSimulation(transactions: ethers.TransactionLike[], options?: TenderlySimulationOptions) {
+    const { tenderyUser, tenderlyProject, tenderlyAccessKey: tenderlyApiKey } = this._options;
+    options = { ...defaultSimulationOptions, ...options };
+    const { save, save_if_fails, simulation_type, network_id } = options;
+    const response = await axios.post(
+      `https://api.tenderly.co/api/v1/account/${tenderyUser}/project/${tenderlyProject}/simulate`,
+      {
+        simulations: transactions.map((transaction) => ({
+          ...transaction,
+          save,
+          save_if_fails,
+          simulation_type,
+          network_id,
+        })),
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Access-Key': tenderlyApiKey,
+        },
+      },
+    );
+    return response.data;
   }
 }
